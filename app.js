@@ -11,11 +11,7 @@ dotenv.config();
 
 const app = express();
 
-const corsOptions = {
-    origin: CLIENT_URL,
-    optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(morgan(":method :url :status :response-time ms :date[web]"));
 app.use(express.json());
