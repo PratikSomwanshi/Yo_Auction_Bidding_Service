@@ -31,7 +31,6 @@ const io = socketIo(server, {
 });
 
 const auctionNamespace = io.of("/auction");
-auctionNamespace.use(authorize);
 
 auctionNamespace.on("connection", async (socket) => {
     console.log("New client connected");
