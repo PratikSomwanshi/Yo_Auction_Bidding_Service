@@ -19,4 +19,5 @@ module.exports = {
     MYSQL_PASSWORD: process.env.MYSQL_PASSWORD,
     MYSQL_PORT: process.env.MYSQL_PORT,
     MYSQL_DIALECT: "mysql",
+    CLIENT_URL: process.env.CLIENT_URL,
 };

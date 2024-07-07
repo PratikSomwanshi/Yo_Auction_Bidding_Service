@@ -10,6 +10,7 @@ const { sequelize, Bid } = require("./model");
 const authorize = require("./middleware/socketAuthMiddleware");
 const fs = require("fs");
 const path = require("path");
+const { CLIENT_URL } = require("./config/config");
 
 const server = http.createServer(app);
 
@@ -21,7 +22,7 @@ if (!fs.existsSync(uploadDir)) {
 
 const io = socketIo(server, {
     cors: {
-        origin: "*",
+        origin: CLIENT_URL,
         methods: ["GET", "POST"],
     },
 });

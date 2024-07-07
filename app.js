@@ -5,12 +5,17 @@ const authRoutes = require("./route/auth");
 const itemRoutes = require("./route/items");
 const bidRoutes = require("./route/bids");
 const morgan = require("morgan");
+const { CLIENT_URL } = require("./config/config");
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+    origin: CLIENT_URL,
+    optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 
 app.use(morgan(":method :url :status :response-time ms :date[web]"));
 app.use(express.json());
