@@ -11,6 +11,7 @@ const authorize = require("./middleware/socketAuthMiddleware");
 const fs = require("fs");
 const path = require("path");
 const { CLIENT_URL } = require("./config/config");
+const cors = require("cors");
 
 const server = http.createServer(app);
 
@@ -20,9 +21,11 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+app.use(cors());
+
 const io = socketIo(server, {
     cors: {
-        origin: CLIENT_URL,
+        origin: "*",
         methods: ["GET", "POST"],
     },
 });
