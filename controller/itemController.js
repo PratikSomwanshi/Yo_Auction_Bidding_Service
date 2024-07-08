@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
 const { StatusEnum } = require("../utils/enums/StatusEnum");
+const { Op } = require("sequelize");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -17,6 +18,8 @@ const upload = multer({ storage });
 
 const createItem = async (req, res) => {
     const { name, description, initialAmount, username } = req.body;
+
+    console.log(JSON.stringify({ body: req.body, file: req.file }));
 
     try {
         const user = await User.findOne({
@@ -96,6 +99,48 @@ const getAllItems = async (req, res) => {
     }
 };
 
+const getItemsBySellerAndNotSold = async (req, res) => {
+    try {
+        const items = await Item.findAll({
+            where: {
+                seller: req.params.seller,
+                status: {
+                    [Op.ne]: "sold",
+                },
+            },
+        });
+        SuccessResponse.data = items;
+        SuccessResponse.message = "Successfully fetched all items";
+        res.json(SuccessResponse);
+    } catch (error) {
+        ErrorResponse.error = {
+            explanation: error.message,
+        };
+        return res.status(400).json(ErrorResponse);
+    }
+};
+
+const getItemsBySellerAndSold = async (req, res) => {
+    try {
+        const items = await Item.findAll({
+            where: {
+                seller: req.params.seller,
+                status: {
+                    [Op.eq]: "sold",
+                },
+            },
+        });
+        SuccessResponse.data = items;
+        SuccessResponse.message = "Successfully fetched all items";
+        res.json(SuccessResponse);
+    } catch (error) {
+        ErrorResponse.error = {
+            explanation: error.message,
+        };
+        return res.status(400).json(ErrorResponse);
+    }
+};
+
 const getItem = async (req, res) => {
     try {
         const id = req.params.id;
@@ -112,4 +157,11 @@ const getItem = async (req, res) => {
     }
 };
 
-module.exports = { createItem, getAllItems, getItem, upload };
+module.exports = {
+    createItem,
+    getAllItems,
+    getItem,
+    upload,
+    getItemsBySellerAndSold,
+    getItemsBySellerAndNotSold,
+};
