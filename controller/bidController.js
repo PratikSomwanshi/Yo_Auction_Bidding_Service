@@ -1,4 +1,4 @@
-const { Bid, Item } = require("../model");
+const { Bid, Item, User } = require("../model");
 const Redis = require("ioredis");
 const { ErrorResponse, SuccessResponse } = require("../utils");
 const dotenv = require("dotenv");
@@ -15,6 +15,40 @@ const checkItemSold = async (itemId) => {
     return await redisClient.get(`bid:${itemId}`, (error, value) => {
         if (!error) return value;
     });
+};
+
+const getAllBidsByUsername = async (req, res) => {
+    const username = req.params.username;
+    try {
+        const user = await User.findOne({
+            where: {
+                username,
+            },
+        });
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        const bids = await Bid.findAll({
+            where: {
+                username: username,
+            },
+        });
+
+        if (!bids) {
+            throw new Error("Bids not found");
+        }
+
+        SuccessResponse.data = bids;
+        SuccessResponse.message = "successfully fetched all bids";
+        return res.json(SuccessResponse);
+    } catch (error) {
+        console.error("Error fetching bids by username:", error);
+        ErrorResponse.error = {
+            explanation: error.message,
+        };
+    }
 };
 
 const handleBid = async (bid) => {
@@ -60,9 +94,9 @@ async function closeBidding(req, res) {
 const closeBid = async (itemId) => {
     try {
         const highestBid = await getHighestBid(itemId);
+        console.log("🚀 ~ closeBid ~ highestBid:", highestBid);
 
         if (highestBid) {
-            await Bid.create(highestBid);
             const item = await Item.findByPk(highestBid.itemId);
             if (!item) {
                 throw new Error("Item not found");
@@ -75,7 +109,16 @@ const closeBid = async (itemId) => {
                 await pipeline.exec();
             }
 
-            console.log(`Bid closed for item ${itemId} and highest bid saved`);
+            // const itemId =;
+            // console.log(typeof itemId, itemId);
+
+            await Bid.create({
+                amount: highestBid.amount,
+                username: highestBid.userId,
+                itemId: parseInt(highestBid.itemId),
+            });
+
+            // console.log(`Bid closed for item ${itemId} and highest bid saved`);
             return highestBid;
         } else {
             console.log(`No bids found for item ${itemId}.`);
@@ -116,7 +159,7 @@ const getHighestBid = async (itemId) => {
             }
         });
 
-        console.log("highest bidding " + highestBid);
+        console.log("highest bidding " + JSON.stringify(highestBid));
 
         return highestBid;
     } catch (error) {
@@ -125,4 +168,10 @@ const getHighestBid = async (itemId) => {
     }
 };
 
-module.exports = { handleBid, getHighestBid, closeBidding, checkItemSold };
+module.exports = {
+    getAllBidsByUsername,
+    handleBid,
+    getHighestBid,
+    closeBidding,
+    checkItemSold,
+};

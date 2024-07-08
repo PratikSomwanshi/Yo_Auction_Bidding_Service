@@ -5,7 +5,6 @@ const authRoutes = require("./route/auth");
 const itemRoutes = require("./route/items");
 const bidRoutes = require("./route/bids");
 const morgan = require("morgan");
-const { CLIENT_URL } = require("./config/config");
 
 dotenv.config();
 
