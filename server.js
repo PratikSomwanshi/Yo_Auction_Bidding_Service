@@ -35,6 +35,16 @@ const auctionNamespace = io.of("/auction");
 auctionNamespace.on("connection", async (socket) => {
     console.log("New client connected");
 
+    socket.on("joinItemRoom", (itemId) => {
+        socket.join(itemId);
+        console.log(`Client joined room for item ${itemId}`);
+    });
+
+    socket.on("leaveItemRoom", (itemId) => {
+        socket.leave(itemId);
+        console.log(`Client left room for item ${itemId}`);
+    });
+
     socket.on("getHighestBid", async (itemId) => {
         try {
             const highestBid = await getHighestBid(itemId);
@@ -44,13 +54,13 @@ auctionNamespace.on("connection", async (socket) => {
                     itemId: itemId,
                     message: "No bids placed yet.",
                 };
-                auctionNamespace.emit("highestBid", message);
+                auctionNamespace.to(itemId).emit("highestBid", message);
                 return;
             }
-            auctionNamespace.emit("highestBid", highestBid);
+            auctionNamespace.to(itemId).emit("highestBid", highestBid);
         } catch (error) {
             console.error("Error fetching highest bid:", error);
-            auctionNamespace.emit("highestBidError", {
+            auctionNamespace.to(itemId).emit("highestBidError", {
                 itemId: itemId,
                 message: "Error fetching highest bid.",
             });
@@ -61,15 +71,17 @@ auctionNamespace.on("connection", async (socket) => {
         try {
             const check = await checkItemSold(bid.itemId);
             if (check) {
-                auctionNamespace.emit("itemSold", "item already sold");
+                auctionNamespace
+                    .to(bid.itemId)
+                    .emit("itemSold", "Item already sold");
                 throw new Error("Item already sold");
             }
             const newBid = await handleBid(bid);
-            auctionNamespace.emit("bid", newBid);
+            auctionNamespace.to(bid.itemId).emit("bid", newBid);
 
             const highestBid = await getHighestBid(bid.itemId);
             console.log("🚀 ~ socket.on ~ highestBid:", highestBid);
-            auctionNamespace.emit("highestBid", highestBid);
+            auctionNamespace.to(bid.itemId).emit("highestBid", highestBid);
         } catch (error) {
             console.error("Error handling bid:", error);
         }
