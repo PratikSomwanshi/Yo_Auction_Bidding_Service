@@ -13,8 +13,8 @@ const router = express.Router();
 
 router.post("/", authMiddleware, upload.single("image"), createItem);
 router.get("/", getAllItems);
-router.get("/not/:seller", getItemsBySellerAndNotSold);
-router.get("/:seller", getItemsBySellerAndSold);
+router.get("/not/:seller", getItemsBySellerAndSold);
+// router.get("/:seller", getItemsBySellerAndSold);
 router.get("/:id", getItem);
 
 module.exports = router;
