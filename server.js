@@ -22,6 +22,7 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 app.use(cors());
+app.options("*", cors());
 
 const io = socketIo(server, {
     cors: {
