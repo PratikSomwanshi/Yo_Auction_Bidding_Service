@@ -12,9 +12,16 @@ const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 
 router.post("/", authMiddleware, upload.single("image"), createItem);
+
+// Adjusted the route to make it unique and more descriptive
+router.get("/not-sold/seller/:seller", getItemsBySellerAndNotSold);
+
+// Adjusted the route to make it unique and more descriptive
+router.get("/sold/seller/:seller", getItemsBySellerAndSold);
+
+// Adjusted the route to make it unique and more descriptive
+router.get("/id/:id", getItem);
+
 router.get("/", getAllItems);
-router.get("/not/:seller", getItemsBySellerAndSold);
-// router.get("/:seller", getItemsBySellerAndSold);
-router.get("/:id", getItem);
 
 module.exports = router;
